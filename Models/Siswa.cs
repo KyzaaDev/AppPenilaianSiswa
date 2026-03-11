@@ -14,7 +14,7 @@ namespace AppPenilaianSiswa.Models
 
         [Required]
         [StringLength(10)]
-        public char Nisn { get; set; }
+        public string Nisn { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -27,6 +27,9 @@ namespace AppPenilaianSiswa.Models
         [Required]
         [StringLength(50)]
         public string Jurusan { get; set; }
+
+        [StringLength(255)]
+        public string SiswaPicture { get; set; }
 
         public List<Nilai> Nilais { get; set; } = new List<Nilai> { };
     }

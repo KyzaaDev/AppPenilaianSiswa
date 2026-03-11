@@ -32,13 +32,13 @@
             label5 = new Label();
             panel1 = new Panel();
             groupBox1 = new GroupBox();
+            cbKelas = new ComboBox();
             label6 = new Label();
             btnFoto = new Button();
             txtJurusan = new TextBox();
             label4 = new Label();
             txtNamaSiswa = new TextBox();
             label3 = new Label();
-            txtKelas = new TextBox();
             label2 = new Label();
             txtNISN = new TextBox();
             label1 = new Label();
@@ -82,13 +82,13 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(cbKelas);
             groupBox1.Controls.Add(label6);
             groupBox1.Controls.Add(btnFoto);
             groupBox1.Controls.Add(txtJurusan);
             groupBox1.Controls.Add(label4);
             groupBox1.Controls.Add(txtNamaSiswa);
             groupBox1.Controls.Add(label3);
-            groupBox1.Controls.Add(txtKelas);
             groupBox1.Controls.Add(label2);
             groupBox1.Controls.Add(txtNISN);
             groupBox1.Controls.Add(label1);
@@ -98,6 +98,15 @@
             groupBox1.TabIndex = 18;
             groupBox1.TabStop = false;
             groupBox1.Text = "Data Siswa";
+            // 
+            // cbKelas
+            // 
+            cbKelas.FormattingEnabled = true;
+            cbKelas.Items.AddRange(new object[] { "X", "XI", "XII" });
+            cbKelas.Location = new Point(121, 77);
+            cbKelas.Name = "cbKelas";
+            cbKelas.Size = new Size(398, 23);
+            cbKelas.TabIndex = 27;
             // 
             // label6
             // 
@@ -152,13 +161,6 @@
             label3.Size = new Size(90, 20);
             label3.TabIndex = 22;
             label3.Text = "Nama Siswa";
-            // 
-            // txtKelas
-            // 
-            txtKelas.Location = new Point(121, 77);
-            txtKelas.Name = "txtKelas";
-            txtKelas.Size = new Size(398, 23);
-            txtKelas.TabIndex = 21;
             // 
             // label2
             // 
@@ -246,6 +248,7 @@
             btnTambah.TabIndex = 20;
             btnTambah.Text = "Tambah";
             btnTambah.UseVisualStyleBackColor = true;
+            btnTambah.Click += btnTambah_Click;
             // 
             // groupBox3
             // 
@@ -324,7 +327,6 @@
         private Label label4;
         private TextBox txtNamaSiswa;
         private Label label3;
-        private TextBox txtKelas;
         private Label label2;
         private TextBox txtNISN;
         private Label label1;
@@ -341,5 +343,6 @@
         private GroupBox groupBox4;
         private PictureBox pbSiswa;
         private ErrorProvider epSiswa;
+        private ComboBox cbKelas;
     }
 }
