@@ -57,6 +57,7 @@ namespace AppPenilaianSiswa
 
                     Session.Username = user.Username;
                     Session.Name = user.Nama;
+                    Session.OperatorId = user.OperatorId;
                     Session.Role = user.Role.RoleName;
 
                     if (Session.Role.ToLower() != "admin")

@@ -9,6 +9,7 @@ namespace AppPenilaianSiswa.Models
 {
     internal class Session
     {
+        public static int OperatorId { get; set; }
         public static string Username { get; set; }
         public static string Name { get; set; }
         public static string Role { get; set; }
