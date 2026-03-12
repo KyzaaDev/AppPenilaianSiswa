@@ -246,6 +246,7 @@
             dgvSiswa.Name = "dgvSiswa";
             dgvSiswa.Size = new Size(510, 170);
             dgvSiswa.TabIndex = 26;
+            dgvSiswa.CellClick += dgvSiswa_CellClick;
             // 
             // groupBox4
             // 

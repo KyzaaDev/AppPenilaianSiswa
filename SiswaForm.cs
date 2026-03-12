@@ -51,7 +51,7 @@ namespace AppPenilaianSiswa
                     cbKelas.ValueMember = "KelasId";
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
@@ -70,9 +70,11 @@ namespace AppPenilaianSiswa
                         Nisn = u.Nisn,
                         NamaSiswa = u.NamaSiswa,
                         Kelas = u.Kelas.NamaKelas,
-                        Jurusan = u.Kelas.Jurusan.NamaJurusan
+                        Jurusan = u.Kelas.Jurusan.NamaJurusan,    
+                        gambarSiswa = u.SiswaPicture
                     }).ToListAsync();
                     dgvSiswa.DataSource = data;
+                    dgvSiswa.Columns["gambarSiswa"].Visible = false;
                 }
             }
             catch (Exception ex)
@@ -83,7 +85,7 @@ namespace AppPenilaianSiswa
 
         private async void SiswaForm_Load(object sender, EventArgs e)
         {
-            await LoadDataSiswa();            
+            await LoadDataSiswa();
             await LoadKelas();
         }
 
@@ -131,7 +133,7 @@ namespace AppPenilaianSiswa
                 {
                     Nisn = txtNISN.Text,
                     NamaSiswa = txtNamaSiswa.Text,
-                    KelasId = Convert.ToInt32(cbKelas.SelectedValue)    ,
+                    KelasId = Convert.ToInt32(cbKelas.SelectedValue),
                     SiswaPicture = imagePath
                 };
 
@@ -160,6 +162,21 @@ namespace AppPenilaianSiswa
         private void btnTambah_Click(object sender, EventArgs e)
         {
             ClearForms();
+        }
+
+        private void dgvSiswa_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            DataGridViewRow data = dgvSiswa.Rows[e.RowIndex];
+
+            txtNamaSiswa.Enabled = false;
+            txtNISN.Enabled = false;
+            cbKelas.Enabled = false;
+
+            txtNamaSiswa.Text = data.Cells["NamaSiswa"].Value.ToString();
+            txtNISN.Text = data.Cells["Nisn"].Value.ToString();
+            cbKelas.Text = data.Cells["Kelas"].Value.ToString();
+            pbSiswa.ImageLocation = data.Cells["gambarSiswa"].Value.ToString();
         }
     }
 }
