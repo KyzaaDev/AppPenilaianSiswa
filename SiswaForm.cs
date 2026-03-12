@@ -39,19 +39,38 @@ namespace AppPenilaianSiswa
             }
         }
 
+        private async Task LoadKelas()
+        {
+            try
+            {
+                using (var db = new AppDbContext())
+                {
+                    var kelas = await db.Kelas.Include(k => k.Jurusan).ToListAsync();
+                    cbKelas.DataSource = kelas;
+                    cbKelas.DisplayMember = "NamaKelas";
+                    cbKelas.ValueMember = "KelasId";
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+
         private async Task LoadDataSiswa()
         {
             try
             {
                 using (var db = new AppDbContext())
                 {
-                    var data = await db.Siswas.Select(u => new
+                    var data = await db.Siswas.Include(u => u.Kelas).ThenInclude(u => u.Jurusan).Select(u => new
                     {
                         SiswaId = u.SiswaId,
                         Nisn = u.Nisn,
                         NamaSiswa = u.NamaSiswa,
-                        Kelas = u.Kelas,
-                        Jurusan = u.Jurusan,
+                        Kelas = u.Kelas.NamaKelas,
+                        Jurusan = u.Kelas.Jurusan.NamaJurusan
                     }).ToListAsync();
                     dgvSiswa.DataSource = data;
                 }
@@ -64,10 +83,11 @@ namespace AppPenilaianSiswa
 
         private async void SiswaForm_Load(object sender, EventArgs e)
         {
-            await LoadDataSiswa();
+            await LoadDataSiswa();            
+            await LoadKelas();
         }
 
-        private bool Validate()
+        private bool ValidateInput()
         {
             epSiswa.Clear();
             if (string.IsNullOrWhiteSpace(txtNISN.Text))
@@ -85,11 +105,6 @@ namespace AppPenilaianSiswa
                 epSiswa.SetError(cbKelas, "Kelas harus diisi!");
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(txtJurusan.Text))
-            {
-                epSiswa.SetError(txtJurusan, "Jurusan harus diisi!");
-                return false;
-            }
             if (imagePath == null)
             {
                 epSiswa.SetError(btnFoto, "Pilh foto terlebih dahulu");
@@ -101,7 +116,6 @@ namespace AppPenilaianSiswa
 
         private void ClearForms()
         {
-            txtJurusan.Text = "";
             imagePath = "";
             txtNamaSiswa.Text = "";
             txtNISN.Text = "";
@@ -110,22 +124,23 @@ namespace AppPenilaianSiswa
 
         private async void btnSimpan_Click(object sender, EventArgs e)
         {
-            if (!Validate()) return;
+            if (!ValidateInput()) return;
             try
             {
                 var siswaBaru = new Siswa
                 {
                     Nisn = txtNISN.Text,
-                    Jurusan = txtJurusan.Text,
                     NamaSiswa = txtNamaSiswa.Text,
-                    Kelas = cbKelas.Text,
+                    KelasId = Convert.ToInt32(cbKelas.SelectedValue)    ,
                     SiswaPicture = imagePath
                 };
 
+                var kelas = (Kelas)cbKelas.SelectedItem;
+
                 using (var db = new AppDbContext())
                 {
-                    DialogResult res = MessageBox.Show($"Yakin ingin simpan data siswa?\n\nNISN: {siswaBaru.Nisn}\n\nJurusan: {siswaBaru.Jurusan}" +
-                        $"\n\nNama Siswa: {siswaBaru.NamaSiswa}\n\nKelas: {siswaBaru.Kelas}", "Konfirmasi", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                    DialogResult res = MessageBox.Show($"Yakin ingin simpan data siswa?\n\nNISN: {siswaBaru.Nisn}\n\nJurusan: {kelas.Jurusan.NamaJurusan}" +
+                        $"\n\nNama Siswa: {siswaBaru.NamaSiswa}\n\nKelas: {kelas.NamaKelas}", "Konfirmasi", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
 
                     if (res != DialogResult.OK) return;
                     db.Siswas.Add(siswaBaru);

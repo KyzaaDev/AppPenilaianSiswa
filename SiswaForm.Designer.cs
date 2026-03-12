@@ -35,8 +35,6 @@
             cbKelas = new ComboBox();
             label6 = new Label();
             btnFoto = new Button();
-            txtJurusan = new TextBox();
-            label4 = new Label();
             txtNamaSiswa = new TextBox();
             label3 = new Label();
             label2 = new Label();
@@ -85,8 +83,6 @@
             groupBox1.Controls.Add(cbKelas);
             groupBox1.Controls.Add(label6);
             groupBox1.Controls.Add(btnFoto);
-            groupBox1.Controls.Add(txtJurusan);
-            groupBox1.Controls.Add(label4);
             groupBox1.Controls.Add(txtNamaSiswa);
             groupBox1.Controls.Add(label3);
             groupBox1.Controls.Add(label2);
@@ -112,7 +108,7 @@
             // 
             label6.AutoSize = true;
             label6.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label6.Location = new Point(9, 135);
+            label6.Location = new Point(9, 106);
             label6.Name = "label6";
             label6.Size = new Size(80, 20);
             label6.TabIndex = 26;
@@ -120,30 +116,13 @@
             // 
             // btnFoto
             // 
-            btnFoto.Location = new Point(121, 135);
+            btnFoto.Location = new Point(121, 106);
             btnFoto.Name = "btnFoto";
             btnFoto.Size = new Size(398, 23);
             btnFoto.TabIndex = 25;
             btnFoto.Text = "Pilih Foto";
             btnFoto.UseVisualStyleBackColor = true;
             btnFoto.Click += btnFoto_Click;
-            // 
-            // txtJurusan
-            // 
-            txtJurusan.Location = new Point(121, 106);
-            txtJurusan.Name = "txtJurusan";
-            txtJurusan.Size = new Size(398, 23);
-            txtJurusan.TabIndex = 25;
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label4.Location = new Point(9, 109);
-            label4.Name = "label4";
-            label4.Size = new Size(57, 20);
-            label4.TabIndex = 24;
-            label4.Text = "Jurusan";
             // 
             // txtNamaSiswa
             // 
@@ -323,8 +302,6 @@
         private Label label5;
         private Panel panel1;
         private GroupBox groupBox1;
-        private TextBox txtJurusan;
-        private Label label4;
         private TextBox txtNamaSiswa;
         private Label label3;
         private Label label2;

@@ -21,12 +21,8 @@ namespace AppPenilaianSiswa.Models
         public string NamaSiswa { get; set; }
 
         [Required]
-        [StringLength(20)]
-        public string Kelas { get; set; }
-
-        [Required]
-        [StringLength(50)]
-        public string Jurusan { get; set; }
+        public int KelasId { get; set; }
+        public Kelas Kelas { get; set; }
 
         [StringLength(255)]
         public string SiswaPicture { get; set; }

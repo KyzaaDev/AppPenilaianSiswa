@@ -21,7 +21,11 @@ namespace AppPenilaianSiswa.Models
         public Mapel Mapel { get; set; }
 
         [Required]
-        public int nilai { get; set; }
+        public int OperatorId { get; set; }
+        public Operator Operator { get; set; }
+
+        [Required]
+        public int NilaiSiswa { get; set; }
 
     }
 }

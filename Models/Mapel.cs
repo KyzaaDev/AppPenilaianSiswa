@@ -18,8 +18,8 @@ namespace AppPenilaianSiswa.Models
 
 
         [Required]
-        [StringLength(50)]
-        public string NamaGuru { get; set; }
+        public int GuruId { get; set; }
+        public Guru Guru { get; set; }
 
         public List<Nilai> Nilais { get; set; } = new List<Nilai> { };
     }

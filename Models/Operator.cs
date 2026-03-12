@@ -8,9 +8,10 @@ using System.Web;
 
 namespace AppPenilaianSiswa.Models
 {
-    internal class User
+    internal class Operator
     {
-        public int UserId { get; set; }
+        [Key]
+        public int OperatorId { get; set; }
 
         [Required]
         [StringLength(50)]

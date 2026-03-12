@@ -50,7 +50,7 @@ namespace AppPenilaianSiswa
         {
             using(var db = new AppDbContext())
             {
-                var newUser = new User
+                var newUser = new Operator
                 {
                     Username = txtUsername.Text,
                     Password = BCrypt.Net.BCrypt.HashPassword(txtPassword.Text),
