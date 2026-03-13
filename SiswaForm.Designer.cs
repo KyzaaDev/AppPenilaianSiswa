@@ -200,6 +200,7 @@
             btnHapus.TabIndex = 23;
             btnHapus.Text = "Hapus";
             btnHapus.UseVisualStyleBackColor = true;
+            btnHapus.Click += btnHapus_Click;
             // 
             // btnUpdate
             // 

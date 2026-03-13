@@ -11,7 +11,7 @@ namespace AppPenilaianSiswa.Models
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source = 192.168.1.2,1433; Initial Catalog= AppPenilaianSiswa; User id = kyzaadev; pwd = 982003; TrustServerCertificate = true", options => options.EnableRetryOnFailure());
+            optionsBuilder.UseSqlServer("Data Source = .\\SQLEXPRESS; Initial Catalog= AppPenilaianSiswa; User id = kyzaadev; pwd = 982003; TrustServerCertificate = true", options => options.EnableRetryOnFailure());
         }
 
         // public db set
