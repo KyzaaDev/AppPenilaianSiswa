@@ -70,7 +70,7 @@ namespace AppPenilaianSiswa
                         Nisn = u.Nisn,
                         NamaSiswa = u.NamaSiswa,
                         Kelas = u.Kelas.NamaKelas,
-                        Jurusan = u.Kelas.Jurusan.NamaJurusan,    
+                        Jurusan = u.Kelas.Jurusan.NamaJurusan,
                         gambarSiswa = u.SiswaPicture
                     }).ToListAsync();
                     dgvSiswa.DataSource = data;
@@ -87,6 +87,8 @@ namespace AppPenilaianSiswa
         {
             await LoadDataSiswa();
             await LoadKelas();
+            tmData.Interval = 5000; // Set interval to 5 second
+            tmData.Start();
         }
 
         private bool ValidateInput()
@@ -122,6 +124,12 @@ namespace AppPenilaianSiswa
             txtNamaSiswa.Text = "";
             txtNISN.Text = "";
             pbSiswa.ImageLocation = "";
+            cbKelas.SelectedIndex = -1;
+
+            // aktifin lagi input
+            txtNamaSiswa.Enabled = true;
+            txtNISN.Enabled = true;
+            cbKelas.Enabled = true;
         }
 
         private async void btnSimpan_Click(object sender, EventArgs e)
@@ -177,6 +185,14 @@ namespace AppPenilaianSiswa
             txtNISN.Text = data.Cells["Nisn"].Value.ToString();
             cbKelas.Text = data.Cells["Kelas"].Value.ToString();
             pbSiswa.ImageLocation = data.Cells["gambarSiswa"].Value.ToString();
+        }
+
+        
+        private async void tmData_Tick(object sender, EventArgs e)
+        {
+            tmData.Stop();
+            await LoadDataSiswa();
+            tmData.Start();
         }
     }
 }

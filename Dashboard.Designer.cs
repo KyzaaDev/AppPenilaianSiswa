@@ -40,6 +40,11 @@
             label4 = new Label();
             panel1 = new Panel();
             label5 = new Label();
+            dataKelasToolStripMenuItem = new ToolStripMenuItem();
+            dataJurusanToolStripMenuItem = new ToolStripMenuItem();
+            dataGuruToolStripMenuItem = new ToolStripMenuItem();
+            dataMapelToolStripMenuItem = new ToolStripMenuItem();
+            dataOperatorToolStripMenuItem = new ToolStripMenuItem();
             msDashboard.SuspendLayout();
             SuspendLayout();
             // 
@@ -55,7 +60,7 @@
             // 
             // dataToolStripMenuItem
             // 
-            dataToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { dataSiswaToolStripMenuItem });
+            dataToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { dataSiswaToolStripMenuItem, dataKelasToolStripMenuItem, dataJurusanToolStripMenuItem, dataGuruToolStripMenuItem, dataMapelToolStripMenuItem, dataOperatorToolStripMenuItem });
             dataToolStripMenuItem.Name = "dataToolStripMenuItem";
             dataToolStripMenuItem.Size = new Size(43, 20);
             dataToolStripMenuItem.Text = "Data";
@@ -148,6 +153,36 @@
             label5.TabIndex = 7;
             label5.Text = "Developed by @KyzaaDev";
             // 
+            // dataKelasToolStripMenuItem
+            // 
+            dataKelasToolStripMenuItem.Name = "dataKelasToolStripMenuItem";
+            dataKelasToolStripMenuItem.Size = new Size(180, 22);
+            dataKelasToolStripMenuItem.Text = "Data Kelas";
+            // 
+            // dataJurusanToolStripMenuItem
+            // 
+            dataJurusanToolStripMenuItem.Name = "dataJurusanToolStripMenuItem";
+            dataJurusanToolStripMenuItem.Size = new Size(180, 22);
+            dataJurusanToolStripMenuItem.Text = "Data Jurusan";
+            // 
+            // dataGuruToolStripMenuItem
+            // 
+            dataGuruToolStripMenuItem.Name = "dataGuruToolStripMenuItem";
+            dataGuruToolStripMenuItem.Size = new Size(180, 22);
+            dataGuruToolStripMenuItem.Text = "Data Guru";
+            // 
+            // dataMapelToolStripMenuItem
+            // 
+            dataMapelToolStripMenuItem.Name = "dataMapelToolStripMenuItem";
+            dataMapelToolStripMenuItem.Size = new Size(180, 22);
+            dataMapelToolStripMenuItem.Text = "Data Mapel";
+            // 
+            // dataOperatorToolStripMenuItem
+            // 
+            dataOperatorToolStripMenuItem.Name = "dataOperatorToolStripMenuItem";
+            dataOperatorToolStripMenuItem.Size = new Size(180, 22);
+            dataOperatorToolStripMenuItem.Text = "Data Operator";
+            // 
             // Dashboard
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -186,5 +221,10 @@
         private Panel panel1;
         private Label label5;
         private ToolStripMenuItem dataSiswaToolStripMenuItem;
+        private ToolStripMenuItem dataKelasToolStripMenuItem;
+        private ToolStripMenuItem dataJurusanToolStripMenuItem;
+        private ToolStripMenuItem dataGuruToolStripMenuItem;
+        private ToolStripMenuItem dataMapelToolStripMenuItem;
+        private ToolStripMenuItem dataOperatorToolStripMenuItem;
     }
 }
