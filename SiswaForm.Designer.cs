@@ -51,6 +51,7 @@
             groupBox4 = new GroupBox();
             pbSiswa = new PictureBox();
             epSiswa = new ErrorProvider(components);
+            tmData = new System.Windows.Forms.Timer(components);
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
             groupBox3.SuspendLayout();
@@ -271,6 +272,10 @@
             // 
             epSiswa.ContainerControl = this;
             // 
+            // tmData
+            // 
+            tmData.Tick += tmData_Tick;
+            // 
             // SiswaForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -322,5 +327,6 @@
         private PictureBox pbSiswa;
         private ErrorProvider epSiswa;
         private ComboBox cbKelas;
+        private System.Windows.Forms.Timer tmData;
     }
 }
