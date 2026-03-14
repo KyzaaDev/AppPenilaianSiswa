@@ -1,4 +1,5 @@
-﻿using AppPenilaianSiswa.DTOs.Siswas;
+﻿using AppPenilaianSiswa.DTOs.Kelas;
+using AppPenilaianSiswa.DTOs.Siswas;
 using AppPenilaianSiswa.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -48,7 +49,14 @@ namespace AppPenilaianSiswa
         {
             try
             {
-                
+                HttpResponseMessage res = await _hc.GetAsync("Kelas");
+                if (res.IsSuccessStatusCode)
+                {
+                    var data = await res.Content.ReadFromJsonAsync<List<KelasResponseDTO>>();
+                    cbKelas.DataSource = data;
+                    cbKelas.DisplayMember = "KelasName";
+                    cbKelas.ValueMember = "KelasId";
+                }
             }
             catch (Exception ex)
             {
@@ -133,8 +141,18 @@ namespace AppPenilaianSiswa
             if (!ValidateInput()) return;
             try
             {
-                    //DialogResult res = MessageBox.Show($"Yakin ingin simpan data siswa?\n\nNISN: {siswaBaru.Nisn}\n\nJurusan: {kelas.Jurusan.NamaJurusan}" +
-                        //$"\n\nNama Siswa: {siswaBaru.NamaSiswa}\n\nKelas: {kelas.NamaKelas}", "Konfirmasi", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                var siswaBaru = new SiswaCreateDTO
+                {
+                    Nisn = txtNISN.Text,
+                    NamaSiswa = txtNamaSiswa.Text,
+                    Picture = imagePath,
+                    KelasId = Convert.ToInt32(cbKelas.SelectedValue)
+                };
+
+                var kelas = (KelasResponseDTO)cbKelas.SelectedItem;
+
+                DialogResult res = MessageBox.Show($"Yakin ingin simpan data siswa?\n\nNISN: {siswaBaru.Nisn}\n\nJurusan: {kelas.Jurusan.JurusanName}" +
+                $"\n\nNama Siswa: {siswaBaru.NamaSiswa}\n\nKelas: {kelas.KelasName}", "Konfirmasi", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
             }
             catch (Exception ex)
             {
