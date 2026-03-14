@@ -1,13 +1,20 @@
+using AppPenilaianSiswa.DTOs.Auths;
+using AppPenilaianSiswa.DTOs.MessageRes;
 using AppPenilaianSiswa.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic.ApplicationServices;
+using System.Net;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace AppPenilaianSiswa
 {
     public partial class Login : Form
     {
+        private readonly HttpClient _hc = new HttpClient();
         public Login()
         {
+            _hc.BaseAddress = new Uri("http://192.168.1.2:5055/api/");
             InitializeComponent();
         }
 
@@ -30,44 +37,41 @@ namespace AppPenilaianSiswa
 
         private async void btnLogin_Click(object sender, EventArgs e)
         {
-            btnLogin.Enabled = false;
             try
             {
+                btnLogin.Enabled = false;
                 if (!Validate()) return;
 
-                string username = txtUsername.Text;
-                string password = txtPassword.Text;
-
-                using (var db = new AppDbContext())
+                var login = new LoginRequestDTO
                 {
-                    var user = await db.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Username == username);
-                    if (user == null)
+                    Username = txtUsername.Text,
+                    Password = txtPassword.Text,
+                };
+
+                HttpResponseMessage res = await _hc.PostAsJsonAsync("Auths/login", login);
+                if (res.IsSuccessStatusCode)
+                {
+                    var data = await res.Content.ReadFromJsonAsync<AuthResponseDTO>();
+
+                    Session.OperatorId = data.OperatorId;
+                    Session.Username = data.Username;
+                    //Session.Name = user.Nama;
+                    Session.OperatorId = data.OperatorId;
+                    Session.Role = data.Role;
+
+                    if (data.Role.ToLower() != "admin")
                     {
-                        MessageBox.Show($"Tidak ada user dengan username {username}", "Gagal login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Ini masih dalam tahap pengembangan!");
                         return;
                     }
 
-
-                    var isValid = BCrypt.Net.BCrypt.Verify(password, user.Password);
-                    if (!isValid)
-                    {
-                        MessageBox.Show("Username atau password salah!", "Gagal login", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-
-                    Session.Username = user.Username;
-                    Session.Name = user.Nama;
-                    Session.OperatorId = user.OperatorId;
-                    Session.Role = user.Role.RoleName;
-
-                    if (Session.Role.ToLower() != "admin")
-                    {
-                        MessageBox.Show("Masih dalam tahap pengembangan");
-                        return;
-                    }
-
-                    new Dashboard().Show();
+                    new SiswaForm().Show();
                     this.Hide();
+                } else if (res.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    var error = await res.Content.ReadFromJsonAsync<MessageRes>();
+                    var errorMessage = error.message;
+                    MessageBox.Show(errorMessage, "Notif", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)

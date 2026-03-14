@@ -1,4 +1,5 @@
-﻿using AppPenilaianSiswa.Models;
+﻿using AppPenilaianSiswa.DTOs.Siswas;
+using AppPenilaianSiswa.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -14,10 +16,12 @@ namespace AppPenilaianSiswa
 {
     public partial class SiswaForm : Form
     {
+        private readonly HttpClient _hc = new HttpClient();
         private string imagePath;
         private int SiswaId = 0;
         public SiswaForm()
         {
+            _hc.BaseAddress = new Uri("http://192.168.1.2:5055/api/");
             InitializeComponent();
         }
 
@@ -44,13 +48,7 @@ namespace AppPenilaianSiswa
         {
             try
             {
-                using (var db = new AppDbContext())
-                {
-                    var kelas = await db.Kelas.Include(k => k.Jurusan).ToListAsync();
-                    cbKelas.DataSource = kelas;
-                    cbKelas.DisplayMember = "NamaKelas";
-                    cbKelas.ValueMember = "KelasId";
-                }
+                
             }
             catch (Exception ex)
             {
@@ -63,19 +61,15 @@ namespace AppPenilaianSiswa
         {
             try
             {
-                using (var db = new AppDbContext())
+                HttpResponseMessage res = await _hc.GetAsync("Siswas/");
+                if (res.IsSuccessStatusCode)
                 {
-                    var data = await db.Siswas.Include(u => u.Kelas).ThenInclude(u => u.Jurusan).Select(u => new
+                    var content = await res.Content.ReadFromJsonAsync<List<SiswaResponseDTO>>();
+                    dgvSiswa.DataSource = content;
+                    if (dgvSiswa.Columns.Contains("Picture"))
                     {
-                        SiswaId = u.SiswaId,
-                        Nisn = u.Nisn,
-                        NamaSiswa = u.NamaSiswa,
-                        Kelas = u.Kelas.NamaKelas,
-                        Jurusan = u.Kelas.Jurusan.NamaJurusan,
-                        gambarSiswa = u.SiswaPicture
-                    }).ToListAsync();
-                    dgvSiswa.DataSource = data;
-                    dgvSiswa.Columns["gambarSiswa"].Visible = false;
+                        dgvSiswa.Columns["Picture"].Visible = false;
+                    }
                 }
             }
             catch (Exception ex)
@@ -139,28 +133,8 @@ namespace AppPenilaianSiswa
             if (!ValidateInput()) return;
             try
             {
-                var siswaBaru = new Siswa
-                {
-                    Nisn = txtNISN.Text,
-                    NamaSiswa = txtNamaSiswa.Text,
-                    KelasId = Convert.ToInt32(cbKelas.SelectedValue),
-                    SiswaPicture = imagePath
-                };
-
-                var kelas = (Kelas)cbKelas.SelectedItem;
-
-                using (var db = new AppDbContext())
-                {
-                    DialogResult res = MessageBox.Show($"Yakin ingin simpan data siswa?\n\nNISN: {siswaBaru.Nisn}\n\nJurusan: {kelas.Jurusan.NamaJurusan}" +
-                        $"\n\nNama Siswa: {siswaBaru.NamaSiswa}\n\nKelas: {kelas.NamaKelas}", "Konfirmasi", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
-
-                    if (res != DialogResult.OK) return;
-                    db.Siswas.Add(siswaBaru);
-                    await db.SaveChangesAsync();
-                    MessageBox.Show("Data berhasil disimpan!", "Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    await LoadDataSiswa();
-                    ClearForms();
-                }
+                    //DialogResult res = MessageBox.Show($"Yakin ingin simpan data siswa?\n\nNISN: {siswaBaru.Nisn}\n\nJurusan: {kelas.Jurusan.NamaJurusan}" +
+                        //$"\n\nNama Siswa: {siswaBaru.NamaSiswa}\n\nKelas: {kelas.NamaKelas}", "Konfirmasi", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
             }
             catch (Exception ex)
             {
@@ -186,7 +160,7 @@ namespace AppPenilaianSiswa
             txtNamaSiswa.Text = data.Cells["NamaSiswa"].Value.ToString();
             txtNISN.Text = data.Cells["Nisn"].Value.ToString();
             cbKelas.Text = data.Cells["Kelas"].Value.ToString();
-            pbSiswa.ImageLocation = data.Cells["gambarSiswa"].Value.ToString();
+            pbSiswa.ImageLocation = data.Cells["Picture"].Value.ToString();
             SiswaId = Convert.ToInt32(data.Cells["SiswaId"].Value);
         }
 
@@ -202,20 +176,18 @@ namespace AppPenilaianSiswa
         {
             try
             {
-                using (var db = new AppDbContext())
-                {
                     if (SiswaId == 0)
                     {
                         MessageBox.Show("Pilih data terlebih dahulu!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
 
-                    var findSiswa = await db.Siswas.FirstOrDefaultAsync(u => u.SiswaId == SiswaId);
-                    if (findSiswa == null)
-                    {
-                        MessageBox.Show("Data siswa tidak ada");
-                        return;
-                    }
+                    //var findSiswa = await db.Siswas.FirstOrDefaultAsync(u => u.SiswaId == SiswaId);
+                    //if (findSiswa == null)
+                    //{
+                    //    MessageBox.Show("Data siswa tidak ada");
+                    //    return;
+                    //}
 
                     DialogResult confirm = MessageBox.Show("Yakin ingin menghapus data?", "Confirm", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
                     if (confirm != DialogResult.OK)
@@ -223,13 +195,12 @@ namespace AppPenilaianSiswa
                         return;
                     }
 
-                    db.Siswas.Remove(findSiswa);
-                    await db.SaveChangesAsync();
+                    //db.Siswas.Remove(findSiswa);
+                    //await db.SaveChangesAsync();
                     MessageBox.Show("Data berhasil dihapus!", "Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     await LoadDataSiswa();
                     ClearForms();
-                    
-                }
+                                    
             }
             catch(Exception ex)
             {
