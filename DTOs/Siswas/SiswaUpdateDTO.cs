@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace AppPenilaianSiswa.DTOs.Siswas
 {
-    internal class SiswaResponseDTO
+    internal class SiswaUpdateDTO
     {
-        public int SiswaId { get; set; }
         public string Nisn { get; set; }
         public string NamaSiswa { get; set; }
-        public string Kelas { get; set; }
-        public string Jurusan { get; set; }
+        public int KelasId { get; set; } = 0;
         public string Picture { get; set; }
-        //public int KelasId { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AppPenilaianSiswa.DTOs.Kelas;
+using AppPenilaianSiswa.DTOs.MessageRes;
 using AppPenilaianSiswa.DTOs.Siswas;
 using AppPenilaianSiswa.Models;
 using Microsoft.EntityFrameworkCore;
@@ -12,12 +13,13 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppPenilaianSiswa
 {
     public partial class SiswaForm : Form
     {
-        private readonly HttpClient _hc = new HttpClient();
+        private static readonly HttpClient _hc = new HttpClient();
         private string imagePath;
         private int SiswaId = 0;
         public SiswaForm()
@@ -69,7 +71,7 @@ namespace AppPenilaianSiswa
         {
             try
             {
-                HttpResponseMessage res = await _hc.GetAsync("Siswas/");
+                HttpResponseMessage res = await _hc.GetAsync("Siswas");
                 if (res.IsSuccessStatusCode)
                 {
                     var content = await res.Content.ReadFromJsonAsync<List<SiswaResponseDTO>>();
@@ -77,6 +79,10 @@ namespace AppPenilaianSiswa
                     if (dgvSiswa.Columns.Contains("Picture"))
                     {
                         dgvSiswa.Columns["Picture"].Visible = false;
+                    }
+                    if (dgvSiswa.Columns.Contains("KelasId"))
+                    {
+                        dgvSiswa.Columns["KelasId"].Visible = false;
                     }
                 }
             }
@@ -90,8 +96,6 @@ namespace AppPenilaianSiswa
         {
             await LoadDataSiswa();
             await LoadKelas();
-            tmData.Interval = 5000; // Set interval to 5 second
-            tmData.Start();
         }
 
         private bool ValidateInput()
@@ -112,7 +116,7 @@ namespace AppPenilaianSiswa
                 epSiswa.SetError(cbKelas, "Kelas harus diisi!");
                 return false;
             }
-            if (imagePath == null)
+            if (imagePath == "")
             {
                 epSiswa.SetError(btnFoto, "Pilh foto terlebih dahulu");
                 return false;
@@ -153,10 +157,25 @@ namespace AppPenilaianSiswa
 
                 DialogResult res = MessageBox.Show($"Yakin ingin simpan data siswa?\n\nNISN: {siswaBaru.Nisn}\n\nJurusan: {kelas.Jurusan.JurusanName}" +
                 $"\n\nNama Siswa: {siswaBaru.NamaSiswa}\n\nKelas: {kelas.KelasName}", "Konfirmasi", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+
+                if (res == DialogResult.OK)
+                {
+                    HttpResponseMessage createRes = await _hc.PostAsJsonAsync("Siswas", siswaBaru);
+                    if (createRes.IsSuccessStatusCode)
+                    {
+                        MessageBox.Show("Data berhasil ditambahkan!", "Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        await LoadDataSiswa();
+                    }
+                    else
+                    {
+                        var response = await createRes.Content.ReadFromJsonAsync<MessageRes>();
+                        MessageBox.Show(response.message);
+                    }
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.ToString());
             }
 
         }
@@ -173,57 +192,137 @@ namespace AppPenilaianSiswa
 
             txtNamaSiswa.Enabled = false;
             txtNISN.Enabled = false;
+            btnFoto.Enabled = false;
             cbKelas.Enabled = false;
 
             txtNamaSiswa.Text = data.Cells["NamaSiswa"].Value.ToString();
             txtNISN.Text = data.Cells["Nisn"].Value.ToString();
+            // cbKelas.Text = data.Cells["Kelas"].Value.ToString();
             cbKelas.Text = data.Cells["Kelas"].Value.ToString();
             pbSiswa.ImageLocation = data.Cells["Picture"].Value.ToString();
+            imagePath = data.Cells["Picture"].Value.ToString();
             SiswaId = Convert.ToInt32(data.Cells["SiswaId"].Value);
         }
 
 
         private async void tmData_Tick(object sender, EventArgs e)
         {
-            tmData.Stop();
-            await LoadDataSiswa();
-            tmData.Start();
         }
 
         private async void btnHapus_Click(object sender, EventArgs e)
         {
             try
             {
-                    if (SiswaId == 0)
-                    {
-                        MessageBox.Show("Pilih data terlebih dahulu!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
+                if (SiswaId == 0)
+                {
+                    MessageBox.Show("Pilih data terlebih dahulu!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-                    //var findSiswa = await db.Siswas.FirstOrDefaultAsync(u => u.SiswaId == SiswaId);
-                    //if (findSiswa == null)
-                    //{
-                    //    MessageBox.Show("Data siswa tidak ada");
-                    //    return;
-                    //}
+                DialogResult confirm = MessageBox.Show("Yakin ingin menghapus data?", "Confirm", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                if (confirm != DialogResult.OK)
+                {
+                    return;
+                }
 
-                    DialogResult confirm = MessageBox.Show("Yakin ingin menghapus data?", "Confirm", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
-                    if (confirm != DialogResult.OK)
-                    {
-                        return;
-                    }
-
-                    //db.Siswas.Remove(findSiswa);
-                    //await db.SaveChangesAsync();
+                HttpResponseMessage res = await _hc.DeleteAsync($"Siswas/{SiswaId}");
+                if (res.IsSuccessStatusCode)
+                {
                     MessageBox.Show("Data berhasil dihapus!", "Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     await LoadDataSiswa();
                     ClearForms();
-                                    
+                }
+                else
+                {
+                    var response = await res.Content.ReadFromJsonAsync<MessageRes>();
+                    MessageBox.Show(response.message);
+                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private async void btnUpdate_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!ValidateInput()) return;
+
+                var kelas = (KelasResponseDTO)cbKelas.SelectedItem;
+
+                var siswaUpdate = new SiswaUpdateDTO
+                {
+                    Nisn = txtNISN.Text,
+                    NamaSiswa = txtNamaSiswa.Text,
+                    KelasId = Convert.ToInt16(kelas.KelasId),
+                    Picture = imagePath
+                };
+
+                DialogResult conf = MessageBox.Show("Yakin ingin mengupdate data?", "Konfirmasi", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+                if (conf != DialogResult.OK) return;
+
+                MessageBox.Show($"Data lama: \n\n Nama siswa: {txtNamaSiswa.Text} \n\n NISN: {txtNISN.Text} \n\n Kelas: {kelas.KelasName} \n\n KelasId: {kelas.KelasId} \n\n Jurusan: {kelas.Jurusan.JurusanName}");
+
+                // update
+                HttpResponseMessage res = await _hc.PutAsJsonAsync($"Siswas/{SiswaId}", siswaUpdate);
+                if (res.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Data berhasil diupdate!", "Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    await LoadDataSiswa();
+                    ClearForms();
+                }
+                else
+                {
+                    var raw = await res.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Status: {res.StatusCode}\nResponse: {raw}");
+                }
+
+                // enable all button
+                btnEdit.Visible = true;
+                btnTambah.Enabled = true;
+                btnHapus.Enabled = true;
+                btnSimpan.Enabled = true;
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+
+            if (SiswaId == 0)
+            {
+                MessageBox.Show("Pilih data terlebih dahulu!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            //enable all textbox
+            txtNamaSiswa.Enabled = true;
+            txtNISN.Enabled = true;
+            btnFoto.Enabled = true;
+            cbKelas.Enabled = true;
+            btnEdit.Visible = false;
+
+            //disable all button
+            btnTambah.Enabled = false;
+            btnHapus.Enabled = false;
+            btnSimpan.Enabled = false;
+
+            //debug isi
+            //var kelas = (KelasResponseDTO)cbKelas.SelectedItem;
+            //MessageBox.Show($"Data lama: \n\n Nama siswa: {txtNamaSiswa.Text} \n\n NISN: {txtNISN.Text} \n\n Kelas: {kelas.KelasName} \n\n Jurusan: {kelas.Jurusan.JurusanName}");
+
+        }
+
+        private void btnTutup_Click(object sender, EventArgs e)
+        {
+            new Dashboard().Show();
+            this.Hide();
         }
     }
 }

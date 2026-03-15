@@ -41,6 +41,7 @@
             txtNISN = new TextBox();
             label1 = new Label();
             groupBox2 = new GroupBox();
+            btnEdit = new Button();
             btnTutup = new Button();
             btnHapus = new Button();
             btnUpdate = new Button();
@@ -171,6 +172,7 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(btnEdit);
             groupBox2.Controls.Add(btnTutup);
             groupBox2.Controls.Add(btnHapus);
             groupBox2.Controls.Add(btnUpdate);
@@ -183,6 +185,16 @@
             groupBox2.TabStop = false;
             groupBox2.Text = "Actions";
             // 
+            // btnEdit
+            // 
+            btnEdit.Location = new Point(6, 77);
+            btnEdit.Name = "btnEdit";
+            btnEdit.Size = new Size(223, 23);
+            btnEdit.TabIndex = 25;
+            btnEdit.Text = "Edit";
+            btnEdit.UseVisualStyleBackColor = true;
+            btnEdit.Click += btnEdit_Click;
+            // 
             // btnTutup
             // 
             btnTutup.Location = new Point(6, 134);
@@ -191,6 +203,7 @@
             btnTutup.TabIndex = 24;
             btnTutup.Text = "Tutup";
             btnTutup.UseVisualStyleBackColor = true;
+            btnTutup.Click += btnTutup_Click;
             // 
             // btnHapus
             // 
@@ -210,6 +223,7 @@
             btnUpdate.TabIndex = 22;
             btnUpdate.Text = "Update";
             btnUpdate.UseVisualStyleBackColor = true;
+            btnUpdate.Click += btnUpdate_Click;
             // 
             // btnSimpan
             // 
@@ -329,5 +343,6 @@
         private ErrorProvider epSiswa;
         private ComboBox cbKelas;
         private System.Windows.Forms.Timer tmData;
+        private Button btnEdit;
     }
 }

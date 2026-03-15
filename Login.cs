@@ -65,7 +65,7 @@ namespace AppPenilaianSiswa
                         return;
                     }
 
-                    new SiswaForm().Show();
+                    new Dashboard().Show();
                     this.Hide();
                 } else if (res.StatusCode == HttpStatusCode.Unauthorized)
                 {
