@@ -54,6 +54,10 @@
             pbSiswa = new PictureBox();
             epSiswa = new ErrorProvider(components);
             tmData = new System.Windows.Forms.Timer(components);
+            btnSearch = new Button();
+            label4 = new Label();
+            txtNama = new TextBox();
+            lblNotif = new Label();
             groupBox1.SuspendLayout();
             groupBox2.SuspendLayout();
             groupBox3.SuspendLayout();
@@ -260,7 +264,7 @@
             // groupBox3
             // 
             groupBox3.Controls.Add(dgvSiswa);
-            groupBox3.Location = new Point(12, 221);
+            groupBox3.Location = new Point(12, 266);
             groupBox3.Name = "groupBox3";
             groupBox3.Size = new Size(535, 198);
             groupBox3.TabIndex = 25;
@@ -279,7 +283,7 @@
             // groupBox4
             // 
             groupBox4.Controls.Add(pbSiswa);
-            groupBox4.Location = new Point(559, 221);
+            groupBox4.Location = new Point(559, 266);
             groupBox4.Name = "groupBox4";
             groupBox4.Size = new Size(229, 192);
             groupBox4.TabIndex = 27;
@@ -303,11 +307,55 @@
             // 
             tmData.Tick += tmData_Tick;
             // 
+            // btnSearch
+            // 
+            btnSearch.Location = new Point(434, 221);
+            btnSearch.Name = "btnSearch";
+            btnSearch.Size = new Size(110, 32);
+            btnSearch.TabIndex = 33;
+            btnSearch.Text = "Search";
+            btnSearch.UseVisualStyleBackColor = true;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label4.Location = new Point(16, 221);
+            label4.Name = "label4";
+            label4.Size = new Size(105, 25);
+            label4.TabIndex = 32;
+            label4.Text = "Cari siswa: ";
+            // 
+            // txtNama
+            // 
+            txtNama.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            txtNama.Location = new Point(161, 221);
+            txtNama.Multiline = true;
+            txtNama.Name = "txtNama";
+            txtNama.Size = new Size(267, 32);
+            txtNama.TabIndex = 31;
+            txtNama.TextChanged += txtNama_TextChanged;
+            // 
+            // lblNotif
+            // 
+            lblNotif.AutoSize = true;
+            lblNotif.Font = new Font("Segoe UI Semibold", 12.75F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lblNotif.ForeColor = Color.Red;
+            lblNotif.Location = new Point(559, 224);
+            lblNotif.Name = "lblNotif";
+            lblNotif.Size = new Size(221, 23);
+            lblNotif.TabIndex = 34;
+            lblNotif.Text = "Data siswa tidak ditemukan";
+            // 
             // SiswaForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 431);
+            ClientSize = new Size(800, 483);
+            Controls.Add(lblNotif);
+            Controls.Add(btnSearch);
+            Controls.Add(label4);
+            Controls.Add(txtNama);
             Controls.Add(groupBox4);
             Controls.Add(groupBox3);
             Controls.Add(groupBox2);
@@ -357,5 +405,9 @@
         private System.Windows.Forms.Timer tmData;
         private Button btnEdit;
         private Button btnBatal;
+        private Button btnSearch;
+        private Label label4;
+        private TextBox txtNama;
+        private Label lblNotif;
     }
 }

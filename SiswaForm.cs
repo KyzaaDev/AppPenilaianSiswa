@@ -98,6 +98,7 @@ namespace AppPenilaianSiswa
             await LoadKelas();
             btnUpdate.Visible = false;
             btnBatal.Visible = false;
+            lblNotif.Visible = false;
         }
 
         private bool ValidateInput()
@@ -338,6 +339,38 @@ namespace AppPenilaianSiswa
             btnBatal.Visible = false;
             btnEdit.Visible = true;
             btnUpdate.Visible = false;
+
+        }
+
+        private async void txtNama_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                await Task.Delay(300);
+                var keyword = Uri.EscapeDataString(txtNama.Text);
+                if (!string.IsNullOrWhiteSpace(txtNama.Text))
+                {
+                    HttpResponseMessage res = await _hc.GetAsync($"Siswas/search?namaSiswa={keyword}");
+                    if (res.IsSuccessStatusCode)
+                    {
+                        lblNotif.Visible = false;
+                        var data = await res.Content.ReadFromJsonAsync<List<SiswaResponseDTO>>();
+                        dgvSiswa.DataSource = data; 
+                    }else
+                    {
+                        lblNotif.Visible = true;
+                    }
+                }
+                else
+                {
+                    lblNotif.Visible = false;
+                    await LoadDataSiswa();
+                }
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }
