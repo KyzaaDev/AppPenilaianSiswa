@@ -41,6 +41,7 @@
             txtNISN = new TextBox();
             label1 = new Label();
             groupBox2 = new GroupBox();
+            btnBatal = new Button();
             btnEdit = new Button();
             btnTutup = new Button();
             btnHapus = new Button();
@@ -172,6 +173,7 @@
             // 
             // groupBox2
             // 
+            groupBox2.Controls.Add(btnBatal);
             groupBox2.Controls.Add(btnEdit);
             groupBox2.Controls.Add(btnTutup);
             groupBox2.Controls.Add(btnHapus);
@@ -185,9 +187,19 @@
             groupBox2.TabStop = false;
             groupBox2.Text = "Actions";
             // 
+            // btnBatal
+            // 
+            btnBatal.Location = new Point(6, 48);
+            btnBatal.Name = "btnBatal";
+            btnBatal.Size = new Size(223, 23);
+            btnBatal.TabIndex = 26;
+            btnBatal.Text = "Batal update";
+            btnBatal.UseVisualStyleBackColor = true;
+            btnBatal.Click += btnBatal_Click;
+            // 
             // btnEdit
             // 
-            btnEdit.Location = new Point(6, 77);
+            btnEdit.Location = new Point(6, 76);
             btnEdit.Name = "btnEdit";
             btnEdit.Size = new Size(223, 23);
             btnEdit.TabIndex = 25;
@@ -217,7 +229,7 @@
             // 
             // btnUpdate
             // 
-            btnUpdate.Location = new Point(6, 76);
+            btnUpdate.Location = new Point(6, 19);
             btnUpdate.Name = "btnUpdate";
             btnUpdate.Size = new Size(223, 23);
             btnUpdate.TabIndex = 22;
@@ -344,5 +356,6 @@
         private ComboBox cbKelas;
         private System.Windows.Forms.Timer tmData;
         private Button btnEdit;
+        private Button btnBatal;
     }
 }

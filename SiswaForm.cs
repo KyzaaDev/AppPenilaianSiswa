@@ -19,7 +19,7 @@ namespace AppPenilaianSiswa
 {
     public partial class SiswaForm : Form
     {
-        private static readonly HttpClient _hc = new HttpClient();
+        private readonly HttpClient _hc = new HttpClient();
         private string imagePath;
         private int SiswaId = 0;
         public SiswaForm()
@@ -96,6 +96,8 @@ namespace AppPenilaianSiswa
         {
             await LoadDataSiswa();
             await LoadKelas();
+            btnUpdate.Visible = false;
+            btnBatal.Visible = false;
         }
 
         private bool ValidateInput()
@@ -183,6 +185,7 @@ namespace AppPenilaianSiswa
         private void btnTambah_Click(object sender, EventArgs e)
         {
             ClearForms();
+            btnFoto.Enabled = true;
         }
 
         private void dgvSiswa_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -263,8 +266,6 @@ namespace AppPenilaianSiswa
                 DialogResult conf = MessageBox.Show("Yakin ingin mengupdate data?", "Konfirmasi", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
                 if (conf != DialogResult.OK) return;
 
-                MessageBox.Show($"Data lama: \n\n Nama siswa: {txtNamaSiswa.Text} \n\n NISN: {txtNISN.Text} \n\n Kelas: {kelas.KelasName} \n\n KelasId: {kelas.KelasId} \n\n Jurusan: {kelas.Jurusan.JurusanName}");
-
                 // update
                 HttpResponseMessage res = await _hc.PutAsJsonAsync($"Siswas/{SiswaId}", siswaUpdate);
                 if (res.IsSuccessStatusCode)
@@ -280,11 +281,12 @@ namespace AppPenilaianSiswa
                 }
 
                 // enable all button
-                btnEdit.Visible = true;
+                btnEdit.Enabled = true;
                 btnTambah.Enabled = true;
                 btnHapus.Enabled = true;
                 btnSimpan.Enabled = true;
-
+                btnBatal.Visible = false;
+                btnUpdate.Visible = false;
             }
             catch (Exception ex)
             {
@@ -306,16 +308,14 @@ namespace AppPenilaianSiswa
             txtNISN.Enabled = true;
             btnFoto.Enabled = true;
             cbKelas.Enabled = true;
-            btnEdit.Visible = false;
+            btnEdit.Enabled = false;
+            btnUpdate.Visible = true;
+            btnBatal.Visible = true;
 
             //disable all button
             btnTambah.Enabled = false;
             btnHapus.Enabled = false;
             btnSimpan.Enabled = false;
-
-            //debug isi
-            //var kelas = (KelasResponseDTO)cbKelas.SelectedItem;
-            //MessageBox.Show($"Data lama: \n\n Nama siswa: {txtNamaSiswa.Text} \n\n NISN: {txtNISN.Text} \n\n Kelas: {kelas.KelasName} \n\n Jurusan: {kelas.Jurusan.JurusanName}");
 
         }
 
@@ -323,6 +323,21 @@ namespace AppPenilaianSiswa
         {
             new Dashboard().Show();
             this.Hide();
+        }
+
+        private void btnBatal_Click(object sender, EventArgs e)
+        {
+
+            ClearForms();
+            btnTambah.Enabled = true;
+            btnHapus.Enabled = true;
+            btnSimpan.Enabled = true;
+            btnEdit.Enabled = true;
+
+            btnEdit.Visible = true;
+            btnBatal.Visible = false;
+            btnEdit.Visible = true;
+            btnUpdate.Visible = false;
         }
     }
 }
