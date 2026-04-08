@@ -58,7 +58,7 @@ namespace AppPenilaianSiswa
                 {
 
                     cbKelas.DataSource = await context.Kelas.Include(j => j.Jurusan).ToListAsync();
-                    cbKelas.DisplayMember = "KelasName";
+                    cbKelas.DisplayMember = "NamaKelas";
                     cbKelas.ValueMember = "KelasId";                    
                 }
                 catch (Exception ex)
@@ -79,10 +79,10 @@ namespace AppPenilaianSiswa
                     dgvSiswa.DataSource = await context.Siswas.Select(s => new
                     {
                         SiswaId = s.SiswaId,
+                        NamaSiswa = s.NamaSiswa,
                         Nisn = s.Nisn,
                         Kelas = s.Kelas.NamaKelas,
                         Jurusan = s.Kelas.Jurusan.NamaJurusan,
-                        NamaSiswa = s.NamaSiswa,
                         Picture = s.SiswaPicture,
                     }).ToListAsync();
 
@@ -185,6 +185,7 @@ namespace AppPenilaianSiswa
 
                         MessageBox.Show("Data berhasil ditambahkan!", "Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         await LoadDataSiswa();
+                        ClearForms();
                     }
                 }
                 catch (Exception ex)
@@ -214,7 +215,6 @@ namespace AppPenilaianSiswa
 
             txtNamaSiswa.Text = data.Cells["NamaSiswa"].Value.ToString();
             txtNISN.Text = data.Cells["Nisn"].Value.ToString();
-            // cbKelas.Text = data.Cells["Kelas"].Value.ToString();
             cbKelas.Text = data.Cells["Kelas"].Value.ToString();
             pbSiswa.ImageLocation = data.Cells["Picture"].Value.ToString();
             imagePath = data.Cells["Picture"].Value.ToString();
@@ -228,37 +228,40 @@ namespace AppPenilaianSiswa
 
         private async void btnHapus_Click(object sender, EventArgs e)
         {
-            try
+            using (var context = new AppDbContext())
             {
-                if (SiswaId == 0)
+                try
                 {
-                    MessageBox.Show("Pilih data terlebih dahulu!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
+                    if (SiswaId == 0)
+                    {
+                        MessageBox.Show("Pilih data terlebih dahulu!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    DialogResult confirm = MessageBox.Show("Yakin ingin menghapus data?", "Confirm", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+                    if (confirm != DialogResult.OK)
+                    {
+                        return;
+                    }
+
+                    var dataSiswa = await context.Siswas.FirstOrDefaultAsync(id => id.SiswaId == SiswaId);
+                    if (dataSiswa != null)
+                    {
+                        context.Siswas.Remove(dataSiswa);
+                        await context.SaveChangesAsync();
+                        await LoadDataSiswa();
+                        return;
+                    }
+
+                    MessageBox.Show($"Tidak ditemukan siswa dengan id {SiswaId}", "Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
                 }
 
-                DialogResult confirm = MessageBox.Show("Yakin ingin menghapus data?", "Confirm", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
-                if (confirm != DialogResult.OK)
-                {
-                    return;
-                }
-
-                HttpResponseMessage res = await _hc.DeleteAsync($"Siswas/{SiswaId}");
-                if (res.IsSuccessStatusCode)
-                {
-                    MessageBox.Show("Data berhasil dihapus!", "Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    await LoadDataSiswa();
-                    ClearForms();
-                }
-                else
-                {
-                    var response = await res.Content.ReadFromJsonAsync<MessageRes>();
-                    MessageBox.Show(response.message);
-                }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            
         }
 
         private async void btnUpdate_Click(object sender, EventArgs e)
@@ -357,33 +360,51 @@ namespace AppPenilaianSiswa
 
         private async void txtNama_TextChanged(object sender, EventArgs e)
         {
-            try
+
+            using (var context = new AppDbContext())
             {
-                await Task.Delay(300);
-                var keyword = Uri.EscapeDataString(txtNama.Text);
-                if (!string.IsNullOrWhiteSpace(txtNama.Text))
+                try
                 {
-                    HttpResponseMessage res = await _hc.GetAsync($"Siswas/search?namaSiswa={keyword}");
-                    if (res.IsSuccessStatusCode)
+                    await Task.Delay(300);                    
+                    if (!string.IsNullOrWhiteSpace(txtNama.Text))
+                    {
+
+                        var dataSiswa = await context.Siswas
+                            .Where(ns => ns.NamaSiswa.Contains(txtNama.Text))
+                            .Select(s => new
+                            {
+                                SiswaId = s.SiswaId,
+                                NamaSiswa = s.NamaSiswa,
+                                Nisn = s.Nisn,
+                                Kelas = s.Kelas.NamaKelas,
+                                Jurusan = s.Kelas.Jurusan.NamaJurusan,
+                                Picture = s.SiswaPicture,
+                            })
+                            .ToListAsync();
+
+                        if (!dataSiswa.Any())
+                        {
+                            lblNotif.Visible = true;
+                            dgvSiswa.DataSource = dataSiswa;
+                        }
+                        else
+                        {
+                            lblNotif.Visible = false;
+                            dgvSiswa.DataSource = dataSiswa;
+                        }
+                    }
+                    else
                     {
                         lblNotif.Visible = false;
-                        var data = await res.Content.ReadFromJsonAsync<List<SiswaResponseDTO>>();
-                        dgvSiswa.DataSource = data; 
-                    }else
-                    {
-                        lblNotif.Visible = true;
+                        await LoadDataSiswa();
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    lblNotif.Visible = false;
-                    await LoadDataSiswa();
+                    MessageBox.Show(ex.Message);
                 }
             }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            
         }
     }
 }

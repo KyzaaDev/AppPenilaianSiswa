@@ -11,8 +11,7 @@ namespace AppPenilaianSiswa.Models
     {
         public static int OperatorId { get; set; }
         public static string Username { get; set; }
-        //public static string Name { get; set; }
+        public static string Name { get; set; }
         public static string Role { get; set; }
-        public static string Token { get; set; }
     }
 }

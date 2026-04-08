@@ -1,3 +1,4 @@
+using AppPenilaianSiswa.Data;
 using AppPenilaianSiswa.DTOs.Auths;
 using AppPenilaianSiswa.DTOs.MessageRes;
 using AppPenilaianSiswa.Models;
@@ -6,19 +7,18 @@ using Microsoft.VisualBasic.ApplicationServices;
 using System.Net;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AppPenilaianSiswa
 {
     public partial class Login : Form
     {
-        private readonly HttpClient _hc = new HttpClient();
         public Login()
         {
-            _hc.BaseAddress = new Uri("http://192.168.1.2:5055/api/");
             InitializeComponent();
         }
 
-        private bool Validate()
+        private bool ValidateLoginInput()
         {
             epLogin.Clear();
             if (string.IsNullOrWhiteSpace(txtUsername.Text))
@@ -35,55 +35,57 @@ namespace AppPenilaianSiswa
             return true;
         }
 
+        private void ClearForm()
+        {
+            txtPassword.Clear();
+            txtUsername.Clear();
+            txtUsername.Focus();
+        }
+
         private async void btnLogin_Click(object sender, EventArgs e)
         {
-            try
+            using (var context = new AppDbContext())
             {
-                btnLogin.Enabled = false;
-                if (!Validate()) return;
-
-                var login = new LoginRequestDTO
+                try
                 {
-                    Username = txtUsername.Text,
-                    Password = txtPassword.Text,
-                };
+                    btnLogin.Enabled = false;
+                    if (!ValidateLoginInput()) return;
 
-                HttpResponseMessage res = await _hc.PostAsJsonAsync("Auths/login", login);
-                if (res.IsSuccessStatusCode)
-                {
-                    var data = await res.Content.ReadFromJsonAsync<AuthResponseDTO>();
+                    string username = txtUsername.Text;
+                    string password = txtPassword.Text;
 
-                    Session.OperatorId = data.OperatorId;
-                    Session.Username = data.Username;
-                    //Session.Name = user.Nama;
-                    Session.OperatorId = data.OperatorId;
-                    Session.Role = data.Role;
+                    var login = await context.Operators.Include(r => r.Role).FirstOrDefaultAsync(o => o.Username == username && o.Password == password);
 
-                    if (data.Role.ToLower() != "admin")
+                    if (login != null)
                     {
-                        MessageBox.Show("Ini masih dalam tahap pengembangan!");
-                        return;
-                    }
+                        Session.OperatorId = login.OperatorId;
+                        Session.Username = login.Username;
+                        Session.Name = login.Nama;
+                        Session.Role = login.Role.RoleName;
 
-                    new Dashboard().Show();
-                    this.Hide();
-                } else if (res.StatusCode == HttpStatusCode.Unauthorized)
-                {
-                    var error = await res.Content.ReadFromJsonAsync<MessageRes>();
-                    var errorMessage = error.message;
-                    MessageBox.Show(errorMessage, "Notif", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        if (login.Role.RoleName.ToLower() == "admin")
+                        {
+                            new Dashboard().Show();
+                            this.Hide();   
+                        }                        
+                    }else
+                    {
+                        MessageBox.Show("Username atau password salah!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        ClearForm();
+                    }    
                 }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    return;
+                }
+                finally
+                {
+                    btnLogin.Enabled = true;
+                }
+
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-                return;
-            }
-            finally
-            {
-                btnLogin.Enabled = true;
-            }
-            
         }
+            
     }
 }
