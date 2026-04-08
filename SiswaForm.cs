@@ -1,4 +1,5 @@
-﻿using AppPenilaianSiswa.DTOs.Kelas;
+﻿using AppPenilaianSiswa.Data;
+using AppPenilaianSiswa.DTOs.Kelas;
 using AppPenilaianSiswa.DTOs.MessageRes;
 using AppPenilaianSiswa.DTOs.Siswas;
 using AppPenilaianSiswa.Models;
@@ -10,6 +11,8 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Net.Http.Json;
+using System.Reflection.Metadata;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -49,33 +52,42 @@ namespace AppPenilaianSiswa
 
         private async Task LoadKelas()
         {
-            try
+            using (var context = new AppDbContext())
             {
-                HttpResponseMessage res = await _hc.GetAsync("Kelas");
-                if (res.IsSuccessStatusCode)
+                try
                 {
-                    var data = await res.Content.ReadFromJsonAsync<List<KelasResponseDTO>>();
-                    cbKelas.DataSource = data;
+
+                    cbKelas.DataSource = await context.Kelas.Include(j => j.Jurusan).ToListAsync();
                     cbKelas.DisplayMember = "KelasName";
-                    cbKelas.ValueMember = "KelasId";
+                    cbKelas.ValueMember = "KelasId";                    
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            
         }
 
 
         private async Task LoadDataSiswa()
         {
-            try
+            using (var context = new AppDbContext())
             {
-                HttpResponseMessage res = await _hc.GetAsync("Siswas");
-                if (res.IsSuccessStatusCode)
+                try
                 {
-                    var content = await res.Content.ReadFromJsonAsync<List<SiswaResponseDTO>>();
-                    dgvSiswa.DataSource = content;
+                    dgvSiswa.DataSource = await context.Siswas.Select(s => new
+                    {
+                        SiswaId = s.SiswaId,
+                        Nisn = s.Nisn,
+                        Kelas = s.Kelas.NamaKelas,
+                        Jurusan = s.Kelas.Jurusan.NamaJurusan,
+                        NamaSiswa = s.NamaSiswa,
+                        Picture = s.SiswaPicture,
+                    }).ToListAsync();
+
+
+
                     if (dgvSiswa.Columns.Contains("Picture"))
                     {
                         dgvSiswa.Columns["Picture"].Visible = false;
@@ -84,12 +96,15 @@ namespace AppPenilaianSiswa
                     {
                         dgvSiswa.Columns["KelasId"].Visible = false;
                     }
+
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
+            
         }
 
         private async void SiswaForm_Load(object sender, EventArgs e)
@@ -146,40 +161,38 @@ namespace AppPenilaianSiswa
         private async void btnSimpan_Click(object sender, EventArgs e)
         {
             if (!ValidateInput()) return;
-            try
+            using (var context = new AppDbContext())
             {
-                var siswaBaru = new SiswaCreateDTO
+                try
                 {
-                    Nisn = txtNISN.Text,
-                    NamaSiswa = txtNamaSiswa.Text,
-                    Picture = imagePath,
-                    KelasId = Convert.ToInt32(cbKelas.SelectedValue)
-                };
-
-                var kelas = (KelasResponseDTO)cbKelas.SelectedItem;
-
-                DialogResult res = MessageBox.Show($"Yakin ingin simpan data siswa?\n\nNISN: {siswaBaru.Nisn}\n\nJurusan: {kelas.Jurusan.JurusanName}" +
-                $"\n\nNama Siswa: {siswaBaru.NamaSiswa}\n\nKelas: {kelas.KelasName}", "Konfirmasi", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
-
-                if (res == DialogResult.OK)
-                {
-                    HttpResponseMessage createRes = await _hc.PostAsJsonAsync("Siswas", siswaBaru);
-                    if (createRes.IsSuccessStatusCode)
+                    var siswaBaru = new Siswa
                     {
+                        Nisn = txtNISN.Text,
+                        NamaSiswa = txtNamaSiswa.Text,
+                        SiswaPicture = imagePath,
+                        KelasId = Convert.ToInt32(cbKelas.SelectedValue)
+                    };
+
+                    var kelas = (Kelas)cbKelas.SelectedItem;
+
+                    DialogResult res = MessageBox.Show($"Yakin ingin simpan data siswa?\n\nNISN: {siswaBaru.Nisn}\n\nJurusan: {kelas.Jurusan.NamaJurusan}" +
+                    $"\n\nNama Siswa: {siswaBaru.NamaSiswa}\n\nKelas: {kelas.NamaKelas}", "Konfirmasi", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+
+                    if (res == DialogResult.OK)
+                    {
+                        context.Siswas.Add(siswaBaru);
+                        await context.SaveChangesAsync();
+
                         MessageBox.Show("Data berhasil ditambahkan!", "Berhasil", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         await LoadDataSiswa();
                     }
-                    else
-                    {
-                        var response = await createRes.Content.ReadFromJsonAsync<MessageRes>();
-                        MessageBox.Show(response.message);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
+            
 
         }
 
